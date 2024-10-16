@@ -105,6 +105,12 @@ def search_student_by_field(field, value, filename="students.json"):
         return result
 
 
+# Функція запису результатів у JSON файл
+def write_results_to_json(results, filename="results.json"):
+    with open(filename, "w", encoding="utf-8") as file:
+        json.dump(results, file, ensure_ascii=False, indent=4)
+
+
 # Функція знаходження учнів з днями народження у заданому місяці
 def find_students_by_birth_month(month, filename="students.json"):
     with open(filename, "r", encoding="utf-8") as file:
@@ -176,6 +182,8 @@ def main():
                         print("Учні з днями народження у цьому місяці:")
                         for student in results:
                             print(student)
+                            write_results_to_json(results)
+                            print("Результати записані у results.json.")
                     else:
                         print("Немає учнів з днями народження у цьому місяці.")
                 else:
