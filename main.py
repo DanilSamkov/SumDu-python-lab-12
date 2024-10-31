@@ -52,48 +52,58 @@ def validate_birthdate(birthdate):
 # Функція запису даних у JSON файл
 def write_students_to_json(filename="students.json"):
     with open(filename, "w", encoding="utf-8") as file:
-        json.dump(students, file, ensure_ascii=False, indent=4)
+        json.dump({"students": students}, file, ensure_ascii=False, indent=4)
 
 
 # Функція зчитування та виведення вмісту JSON файлу у вигляді таблиці
 def read_students_from_json(filename="students.json"):
     with open(filename, "r", encoding="utf-8") as file:
         data = json.load(file)
+        students = data.get("students", [])  # Извлекаем список студентов
+
         header = f"{'Прізвище':<12} {'Ім\'я':<10} {'По батькові':<15} {'Дата народження':<15} {'Стать':<10}"
         print(header)
         print("=" * len(header))
-        for student in data:
+
+        for student in students:
             print(
-                f"{student['прізвище']:<12} {student['ім\'я']:<10} {student['по_батькові']:<15} {student['дата_народження']:<15} {student['стать']:<10}")
+                f"{student['прізвище']:<12} {student['ім\'я']:<10} {student['по_батькові']:<15} {student['дата_народження']:<15} {student['стать']:<10}"
+            )
 
 
 # Функція додавання нового запису
 def add_student_to_json(new_student, filename="students.json"):
     with open(filename, "r+", encoding="utf-8") as file:
         data = json.load(file)
-        data.append(new_student)
+        students_list = data.get("students", [])
+        students_list.append(new_student)
+        data["students"] = students_list
         file.seek(0)
         json.dump(data, file, ensure_ascii=False, indent=4)
+        file.truncate()
 
 
 # Функція видалення запису
 def delete_student_from_json(prizvische, filename="students.json"):
     with open(filename, "r+", encoding="utf-8") as file:
         data = json.load(file)
-        initial_count = len(data)
-        data = [student for student in data if student['прізвище'] != prizvische]
+        students_list = data.get("students", [])
+        initial_count = len(students_list)
+        students_list = [student for student in students_list if student['прізвище'] != prizvische]
 
-        if len(data) == initial_count:
+        if len(students_list) == initial_count:
             print(f"Учня з прізвищем {prizvische} не знайдено.")
         else:
             print(f"Учня з прізвищем {prizvische} успішно видалено.")
 
+        data["students"] = students_list
         file.seek(0)
-        file.truncate()
         json.dump(data, file, ensure_ascii=False, indent=4)
+        file.truncate()
 
 
 # Функція пошуку учнів за полем з перевіркою
+# Функция поиска учеников по указанному полю
 def search_student_by_field(field, value, filename="students.json"):
     valid_fields = ['ім\'я', 'прізвище', 'по_батькові', 'дата_народження', 'стать']
     if field not in valid_fields:
@@ -101,25 +111,27 @@ def search_student_by_field(field, value, filename="students.json"):
 
     with open(filename, "r", encoding="utf-8") as file:
         data = json.load(file)
-        result = [student for student in data if student.get(field) == value]
+        students_list = data.get("students", [])
+        result = [student for student in students_list if student.get(field) == value]
         return result
 
 
 # Функція запису результатів у JSON файл
 def write_results_to_json(results, filename="results.json"):
     with open(filename, "w", encoding="utf-8") as file:
-        json.dump(results, file, ensure_ascii=False, indent=4)
+        json.dump({"results": results}, file, ensure_ascii=False, indent=4)
 
 
 # Функція знаходження учнів з днями народження у заданому місяці
-def find_students_by_birth_month(month, filename="students.json"):
+def find_students_by_birth_month(month, filename="students.json", results_filename="results.json"):
     with open(filename, "r", encoding="utf-8") as file:
-        data = json.load(file)
+        data = json.load(file).get("students", [])
         result = []
         for student in data:
             birth_month = datetime.strptime(student["дата_народження"], "%Y-%m-%d").month
             if birth_month == month:
                 result.append(f"{student['ім\'я']} {student['прізвище']}")
+        write_results_to_json(result, results_filename)
         return result
 
 
