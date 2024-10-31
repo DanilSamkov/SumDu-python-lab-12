@@ -103,7 +103,6 @@ def delete_student_from_json(prizvische, filename="students.json"):
 
 
 # Функція пошуку учнів за полем з перевіркою
-# Функция поиска учеников по указанному полю
 def search_student_by_field(field, value, filename="students.json"):
     valid_fields = ['ім\'я', 'прізвище', 'по_батькові', 'дата_народження', 'стать']
     if field not in valid_fields:
